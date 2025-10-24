@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/money-allocator/static/css/main.3982bb5f.css",
+    "main.js": "/money-allocator/static/js/main.a893113b.js",
+    "index.html": "/money-allocator/index.html",
+    "main.3982bb5f.css.map": "/money-allocator/static/css/main.3982bb5f.css.map",
+    "main.a893113b.js.map": "/money-allocator/static/js/main.a893113b.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.3982bb5f.css",
+    "static/js/main.a893113b.js"
+  ]
+}
