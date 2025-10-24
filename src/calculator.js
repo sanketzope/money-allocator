@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-export default function Calculator() {
+export default function MoneyPotAllocator() {
   const [categories, setCategories] = useState([
     { id: 1, name: 'Buy Phone', percentage: 30 },
     { id: 2, name: 'Travel', percentage: 25 },
@@ -11,6 +11,61 @@ export default function Calculator() {
   const [editingId, setEditingId] = useState(null);
   const [editName, setEditName] = useState('');
   const [newCategoryName, setNewCategoryName] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
+
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+
+  useEffect(() => {
+    if (!isLoading) {
+      saveData();
+    }
+  }, [categories, totalAmount]);
+
+const loadData = () => {
+  try {
+    const savedData = localStorage.getItem('moneypot-data');
+    if (savedData) {
+      const data = JSON.parse(savedData);
+      if (data.categories) setCategories(data.categories);
+      if (data.totalAmount) setTotalAmount(data.totalAmount);
+    }
+  } catch (error) {
+    console.log('No saved data found or error loading data');
+  } finally {
+    setIsLoading(false);
+  }
+};
+
+const saveData = () => {
+  try {
+    const data = { categories, totalAmount };
+    localStorage.setItem('moneypot-data', JSON.stringify(data));
+  } catch (error) {
+    console.error('Error saving data:', error);
+  }
+};
+
+const resetData = () => {
+  if (window.confirm('Are you sure you want to reset all data? This cannot be undone.')) {
+    try {
+      localStorage.removeItem('moneypot-data');
+      setCategories([
+        { id: 1, name: 'Buy Phone', percentage: 30 },
+        { id: 2, name: 'Travel', percentage: 25 },
+        { id: 3, name: 'Mutual Funds', percentage: 45 }
+      ]);
+      setTotalAmount('');
+      alert('Data reset successfully!');
+    } catch (error) {
+      console.error('Error resetting data:', error);
+    }
+  }
+};
+
 
   const calculateAllocation = (percentage) => {
     if (!totalAmount || totalAmount <= 0) return 0;
@@ -72,17 +127,46 @@ export default function Calculator() {
   const totalPercentage = getTotalPercentage();
   const isBalanced = totalPercentage === 100;
 
+  if (isLoading) {
+    return (
+      <div className="container py-5">
+        <div className="text-center">
+          <div className="spinner-border text-success" role="status">
+            <span className="visually-hidden">Loading...</span>
+          </div>
+          <p className="mt-3">Loading your data...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="container py-4">
       <div className="row justify-content-center">
         <div className="col-12 col-lg-11">
           <div className="card shadow-sm mb-4">
             <div className="card-header bg-success text-white">
-              <h3 className="mb-0">💰 Money Allocator</h3>
-              <small>Divide your money into different savings goals</small>
+              <div className="d-flex justify-content-between align-items-center">
+                <div>
+                  <h3 className="mb-0">💰 Money Pot Allocator</h3>
+                  <small>Divide your money into different savings goals</small>
+                </div>
+                <button 
+                  className="btn btn-sm btn-light"
+                  onClick={resetData}
+                  title="Reset all data"
+                >
+                  🔄 Reset
+                </button>
+              </div>
             </div>
             <div className="card-body">
-                
+              {/* Auto-save indicator */}
+              <div className="alert alert-info alert-dismissible fade show mb-3" role="alert">
+                <small>💾 <strong>Auto-save enabled!</strong> Your data is automatically saved and will persist after refresh.</small>
+                <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+
               {/* Total Amount Input */}
               <div className="mb-4">
                 <label className="form-label fw-bold fs-5">Total Amount Available</label>
